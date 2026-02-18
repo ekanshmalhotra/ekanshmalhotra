@@ -385,21 +385,21 @@
             </div>
 
             <div class="glass-card rounded-3xl p-8 sm:p-10">
-                <form class="space-y-6">
+                <form id="contactForm" class="space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-sm font-medium text-gray-300 mb-2">Full Name</label>
-                            <input type="text" class="w-full bg-white/5 border border-white/10 focus:border-cyber-500 rounded-xl px-4 py-3.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyber-500/20 transition-all" placeholder="John Doe">
+                            <input type="text" id="fullName" name="fullName" class="w-full bg-white/5 border border-white/10 focus:border-cyber-500 rounded-xl px-4 py-3.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyber-500/20 transition-all" placeholder="John Doe" required>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-300 mb-2">Email Address</label>
-                            <input type="email" class="w-full bg-white/5 border border-white/10 focus:border-cyber-500 rounded-xl px-4 py-3.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyber-500/20 transition-all" placeholder="john@company.com">
+                            <input type="email" id="email" name="email" class="w-full bg-white/5 border border-white/10 focus:border-cyber-500 rounded-xl px-4 py-3.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyber-500/20 transition-all" placeholder="john@company.com" required>
                         </div>
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-300 mb-2">Service Interested In</label>
-                        <select class="w-full bg-white/5 border border-white/10 focus:border-cyber-500 rounded-xl px-4 py-3.5 text-white focus:outline-none focus:ring-2 focus:ring-cyber-500/20 transition-all">
+                        <select id="service" name="service" class="w-full bg-white/5 border border-white/10 focus:border-cyber-500 rounded-xl px-4 py-3.5 text-white focus:outline-none focus:ring-2 focus:ring-cyber-500/20 transition-all" required>
                             <option value="" class="bg-dark-900">Select a service...</option>
                             <option value="redteam" class="bg-dark-900">Red Teaming</option>
                             <option value="malware" class="bg-dark-900">Malware Analysis</option>
@@ -413,13 +413,14 @@
 
                     <div>
                         <label class="block text-sm font-medium text-gray-300 mb-2">Message</label>
-                        <textarea rows="5" class="w-full bg-white/5 border border-white/10 focus:border-cyber-500 rounded-xl px-4 py-3.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyber-500/20 transition-all resize-none" placeholder="Tell us about your security needs..."></textarea>
+                        <textarea id="message" name="message" rows="5" class="w-full bg-white/5 border border-white/10 focus:border-cyber-500 rounded-xl px-4 py-3.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyber-500/20 transition-all resize-none" placeholder="Tell us about your security needs..." required></textarea>
                     </div>
 
                     <div class="text-center pt-4">
-                        <button type="submit" class="px-10 py-4 bg-cyber-600 hover:bg-cyber-500 rounded-xl text-base font-semibold transition-all hover:shadow-xl hover:shadow-cyber-500/25 hover:-translate-y-0.5 w-full sm:w-auto">
+                        <button type="submit" id="submitBtn" class="px-10 py-4 bg-cyber-600 hover:bg-cyber-500 rounded-xl text-base font-semibold transition-all hover:shadow-xl hover:shadow-cyber-500/25 hover:-translate-y-0.5 w-full sm:w-auto">
                             Send Message
                         </button>
+                        <div id="formMessage" class="mt-4 text-sm font-medium hidden"></div>
                     </div>
                 </form>
             </div>
@@ -442,7 +443,7 @@
                         </svg>
                     </div>
                     <h4 class="font-semibold mb-1">Email</h4>
-                    <p class="text-gray-400 text-sm"><a href="mail:info@cybercrafters.tech" class="__cf_email__" data-cfemail="335b565f5f5c73504a51564150415255475641401d5a5c">info@cybercrafters.tech</a></p>
+                    <p class="text-gray-400 text-sm"><a href="mailto:info@cybercrafters.tech" class="__cf_email__" data-cfemail="335b565f5f5c73504a51564150415255475641401d5a5c">info@cybercrafters.tech</a></p>
                 </div>
                 <div class="glass-card rounded-2xl p-6 text-center">
                     <div class="w-12 h-12 rounded-xl bg-cyber-500/10 flex items-center justify-center mx-auto mb-4">
@@ -496,6 +497,9 @@
     </footer>
 
     <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+        // Google Apps Script Web App URL - Replace with your own
+        const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby66y0lG01QqSqj065OvQQLU7ipvVcKxnQ7HEeaqqorl46PdQqwBwjlaSil77jUg-1t-A/exec'; // Replace YOUR_SCRIPT_ID
+
         // Mobile menu toggle
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
         const mobileMenu = document.getElementById('mobile-menu');
@@ -525,6 +529,60 @@
                 }
             });
         });
+
+        // Contact form submission
+        const contactForm = document.getElementById('contactForm');
+        const formMessage = document.getElementById('formMessage');
+        const submitBtn = document.getElementById('submitBtn');
+
+        if (contactForm) {
+            contactForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const fullName = document.getElementById('fullName').value;
+                const email = document.getElementById('email').value;
+                const service = document.getElementById('service').value;
+                const message = document.getElementById('message').value;
+                const timestamp = new Date().toLocaleString();
+
+                // Disable submit button
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Sending...';
+
+                try {
+                    // Send to Google Apps Script
+                    const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        body: new FormData(contactForm)
+                    });
+
+                    // Show success message
+                    formMessage.textContent = '✓ Message sent successfully! We\'ll get back to you soon.';
+                    formMessage.className = 'mt-4 text-sm font-medium text-cyber-400';
+                    formMessage.classList.remove('hidden');
+
+                    // Reset form
+                    contactForm.reset();
+
+                    // Hide message after 5 seconds
+                    setTimeout(() => {
+                        formMessage.classList.add('hidden');
+                    }, 5000);
+
+                } catch (error) {
+                    // Show error message
+                    formMessage.textContent = '✗ Error sending message. Please try again or email us directly.';
+                    formMessage.className = 'mt-4 text-sm font-medium text-red-400';
+                    formMessage.classList.remove('hidden');
+                    console.error('Error:', error);
+                } finally {
+                    // Re-enable submit button
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Send Message';
+                }
+            });
+        }
     </script>
 </body>
 </html>
